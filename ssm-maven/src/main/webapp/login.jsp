@@ -69,6 +69,7 @@
                 alert("密码不能为空！");
                 return;
             }
+            //id=adminlogin的form提交到action的地址
             $("#adminlogin").submit();
 
         }
@@ -117,13 +118,13 @@
                                         <td width=100 align=right><input
                                                 style="border-right-width: 0px; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px"
                                                 id=btnLogin src="${pageContext.request.contextPath}/images/btn1.jpg"
-                                                type=image name=btnLogin onclick="javascript:login();return false;">
+                                                type=image name=btnLogin onclick="login();return false;">
                                         </td>
                                         <td width=100 align=middle><input
                                                 style="border-right-width: 0px; border-top-width: 0px; border-bottom-width: 0px; border-left-width: 0px"
                                                 id=btnReset src="${pageContext.request.contextPath}/images/btn2.jpg"
                                                 type=image name=btnReset
-                                                onclick="javascript:adminlogin.reset();return false;"></td>
+                                                onclick="adminlogin.reset();return false;"></td>
                                     </tr>
                                     </tbody>
                                 </table>

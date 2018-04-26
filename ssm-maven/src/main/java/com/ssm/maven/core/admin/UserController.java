@@ -48,22 +48,23 @@ public class UserController {
     @RequestMapping("/login")
     public String login(User user, HttpServletRequest request) {
         try {
+//            密码值用MD5形式放入数据库
             String MD5pwd = MD5Util.MD5Encode(user.getPassword(), "UTF-8");
             user.setPassword(MD5pwd);
         } catch (Exception e) {
             user.setPassword("");
         }
-        User resultUser = userService.login(user);
+        User resultUser = userService.login(user);//login去数据库中找用户名和密码相同的项，找到就放到User中
         log.info("request: user/login , user: " + user.toString());
         if (resultUser == null) {
             request.setAttribute("user", user);
             request.setAttribute("errorMsg", "请认真核对账号、密码！");
-            return "login";
+            return "login";//返回视图
         } else {
             HttpSession session = request.getSession();
-            session.setAttribute("currentUser", resultUser);
-            MDC.put("userName", user.getUserName());
-            return "redirect:/main.jsp";
+            session.setAttribute("currentUser", resultUser);//把user放入session
+            MDC.put("userName", user.getUserName());//MDC是log4j的静态类
+            return "redirect:/main.jsp";//重定向到后台主页
         }
     }
 
@@ -80,8 +81,8 @@ public class UserController {
     public String modifyPassword(User user, HttpServletResponse response) throws Exception {
         String MD5pwd = MD5Util.MD5Encode(user.getPassword(), "UTF-8");
         user.setPassword(MD5pwd);
-        int resultTotal = userService.updateUser(user);
-        JSONObject result = new JSONObject();
+        int resultTotal = userService.updateUser(user);//更新user信息，返回受影响的条目数，这里成功应该返回1
+        JSONObject result = new JSONObject();//json格式返回,JSONObject()里是一个hashmap
         if (resultTotal > 0) {
             result.put("success", true);
         } else {
@@ -100,12 +101,13 @@ public class UserController {
      */
     @RequestMapping("/logout")
     public String logout(HttpSession session) throws Exception {
-        session.invalidate();
+        session.invalidate();//remove cookie
         log.info("request: user/logout");
         return "redirect:/login.jsp";
     }
 
     /**
+     * 列出所有用户
      * @param page
      * @param rows
      * @param s_user
@@ -118,15 +120,15 @@ public class UserController {
         Map<String, Object> map = new HashMap<String, Object>();
         if (page != null && rows != null) {
             PageBean pageBean = new PageBean(Integer.parseInt(page),
-                    Integer.parseInt(rows));
+                    Integer.parseInt(rows));//分页操作
             map.put("start", pageBean.getStart());
             map.put("size", pageBean.getPageSize());
         }
-        map.put("userName", StringUtil.formatLike(s_user.getUserName()));
+        map.put("userName", StringUtil.formatLike(s_user.getUserName()));//username前后加%
         List<User> userList = userService.findUser(map);
         Long total = userService.getTotalUser(map);
         JSONObject result = new JSONObject();
-        JSONArray jsonArray = JSONArray.fromObject(userList);
+        JSONArray jsonArray = JSONArray.fromObject(userList);//list转换成json数组
         result.put("rows", jsonArray);
         result.put("total", total);
         log.info("request: user/list , map: " + map.toString());
